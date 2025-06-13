@@ -1,0 +1,317 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: 36bff6c29af64692839d077febfc7079
+      name: 'Templates/Network devices'
+  templates:
+    - uuid: 9c92dd2576ac44ddbf32df8f77776530
+      template: 'Unifi UDM Pro Max'
+      name: 'Unifi UDM Pro Max'
+      templates:
+        - name: 'ICMP Ping'
+      groups:
+        - name: 'Templates/Network devices'
+      items:
+        - uuid: e4bf44b350794591875a1404d7697b63
+          name: 'CPU AVG Load 1 Min'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.2021.10.1.3.1
+          key: IaLoad.1
+          history: 1w
+          value_type: FLOAT
+          tags:
+            - tag: Application
+              value: CPU
+        - uuid: f420c1818f144c748687447e59685f42
+          name: 'CPU AVG Load 5 Min'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.2021.10.1.3.2
+          key: IaLoad.2
+          history: 1w
+          value_type: FLOAT
+          tags:
+            - tag: Application
+              value: CPU
+        - uuid: afd9993b169e4987985781abf6499b0c
+          name: 'CPU AVG Load 15 Min'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.2021.10.1.3.3
+          key: IaLoad.3
+          history: 1w
+          value_type: FLOAT
+          tags:
+            - tag: Application
+              value: CPU
+        - uuid: ca4c3c32bf3b4cd291f265edf9f5bd2f
+          name: 'Total Interfaces on Device'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.2.1.0
+          key: ifNumber.0
+          tags:
+            - tag: Application
+              value: System
+        - uuid: e5b6a4d6bf07423d876ad1689bdc6142
+          name: 'IP Packets Received'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.4.3.0
+          key: ipInReceives.0
+          units: pkts
+          tags:
+            - tag: Application
+              value: System
+        - uuid: 31b04ac969ba42d7896fea7e4e23dbfc
+          name: 'IP Packets Sent'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.4.10.0
+          key: ipOutRequests.0
+          units: pkts
+          tags:
+            - tag: Application
+              value: System
+        - uuid: dd7c2a49ae664fd38dded2258ab7eebf
+          name: 'SNMP Walk Interface Description'
+          type: SNMP_AGENT
+          snmp_oid: 'walk[1.3.6.1.2.1.2.2.1.2,1.3.6.1.2.1.2.2.1.3,1.3.6.1.2.1.2.2.1.8]'
+          key: snmp.if.discovery
+          value_type: TEXT
+        - uuid: 063b49dc9b9e427d8f57fb366ad801ef
+          name: 'Firmware Version'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.1.1.0
+          key: sysDescr.0
+          delay: 60m
+          history: 1w
+          value_type: TEXT
+          inventory_link: SOFTWARE
+          tags:
+            - tag: Application
+              value: System
+        - uuid: f410d8c7a9d7430681ff560fd0d83ce8
+          name: Hostname
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.1.5.0
+          key: sysName.0
+          delay: 60m
+          history: 1w
+          value_type: TEXT
+          inventory_link: NAME
+          tags:
+            - tag: Application
+              value: System
+        - uuid: e14322b44036467fa6ea5d0aa2032c4a
+          name: Uptime
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.1.3.0
+          key: sysUpTime.0
+          delay: 5m
+          history: 1w
+          value_type: FLOAT
+          units: uptime
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.01'
+          tags:
+            - tag: Application
+              value: System
+          triggers:
+            - uuid: 6e871d19dc2f48a5ae74459c7317d2b2
+              expression: 'last(/Unifi UDM Pro Max/sysUpTime.0)<900'
+              name: 'Device Recently Rebooted'
+              priority: INFO
+      discovery_rules:
+        - uuid: 67545b5635d44086947d2b6ae342545d
+          name: 'Discover SNMP Interfaces'
+          type: DEPENDENT
+          key: snmp.if.discovery.lld
+          filter:
+            conditions:
+              - macro: '{#IFDESCR}'
+                value: '^(eth|ath|br|honeypot|switch|Annapurna).*'
+              - macro: '{#IFOPERSTATUS}'
+                value: ^1$
+              - macro: '{#IFTYPE}'
+                value: ^6$
+          item_prototypes:
+            - uuid: 4c4ba8970fdd416ca671b4737cf74785
+              name: 'Inbound Discards on {#IFDESCR}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.2.2.1.13.{#SNMPINDEX}'
+              key: 'ifInDiscards[{#SNMPINDEX}]'
+              units: errors
+              tags:
+                - tag: Application
+                  value: Interfaces
+            - uuid: 46467864b46d4ca19aea272ee133c568
+              name: 'Inbound Errors on {#IFDESCR}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.2.2.1.14.{#SNMPINDEX}'
+              key: 'ifInErrors[{#SNMPINDEX}]'
+              units: errors
+              tags:
+                - tag: Application
+                  value: Interfaces
+              trigger_prototypes:
+                - uuid: 785194d82920484282d076eae243b3e9
+                  expression: 'change(/Unifi UDM Pro Max/ifInErrors[{#SNMPINDEX}])>0'
+                  name: 'Inbound errors detected on interface {#IFDESCR}'
+                  priority: WARNING
+            - uuid: e7f0b832384f414292c07a2d9f9dbce3
+              name: 'Inbound traffic on {#IFDESCR}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.2.2.1.10.{#SNMPINDEX}'
+              key: 'ifInOctets[{#SNMPINDEX}]'
+              units: bps
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+            - uuid: f867eae5815c4c22a7392767eb622157
+              name: 'Outbound Discards on {#IFDESCR}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.2.2.1.19.{#SNMPINDEX}'
+              key: 'ifOutDiscards[{#SNMPINDEX}]'
+              units: errors
+              tags:
+                - tag: Application
+                  value: Interfaces
+            - uuid: a0792f2857b047bdbd76d9f72d92c6d8
+              name: 'Outbound Errors on {#IFDESCR}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.2.2.1.20.{#SNMPINDEX}'
+              key: 'ifOutErrors[{#SNMPINDEX}]'
+              units: errors
+              tags:
+                - tag: Application
+                  value: Interfaces
+              trigger_prototypes:
+                - uuid: fcb567efb4f54aaa8535b700d0a47c54
+                  expression: 'change(/Unifi UDM Pro Max/ifOutErrors[{#SNMPINDEX}])>0'
+                  name: 'Outbound errors detected on interface {#IFDESCR}'
+                  priority: WARNING
+            - uuid: f47d523cdde248258ca0cf43bce0b43e
+              name: 'Outbound traffic on {#IFDESCR}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.2.2.1.10.{#SNMPINDEX}'
+              key: 'ifOutOctets[{#SNMPINDEX}]'
+              units: bps
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+            - uuid: 4b735a3bb2d743dba1c49d0abf47ff4b
+              name: 'MAC Address on {#IFDESCR}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.2.2.1.6.{#SNMPINDEX}'
+              key: 'ifPhysAddress[{#SNMPINDEX}]'
+              value_type: TEXT
+              tags:
+                - tag: Application
+                  value: Interfaces
+            - uuid: f2f5e22224ec42278d2c105776d4b7d3
+              name: 'Interface Speed on {#IFDESCR}'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.2.1.2.2.1.5.{#SNMPINDEX}'
+              key: 'ifSpeed[{#SNMPINDEX}]'
+              units: bps
+              tags:
+                - tag: Application
+                  value: Interfaces
+          trigger_prototypes:
+            - uuid: c2349b91c9cc4fc395417acb14e71b36
+              expression: 'change(/Unifi UDM Pro Max/ifInDiscards[{#SNMPINDEX}])>0 or change(/Unifi UDM Pro Max/ifOutDiscards[{#SNMPINDEX}])>0'
+              name: 'Discards detected on interface {#IFDESCR}'
+              priority: WARNING
+          graph_prototypes:
+            - uuid: 82aef483944e4309bf2f58c58f84afb9
+              name: 'Interface Errors on {#IFDESCR}'
+              graph_items:
+                - drawtype: GRADIENT_LINE
+                  color: FF0000
+                  item:
+                    host: 'Unifi UDM Pro Max'
+                    key: 'ifInErrors[{#SNMPINDEX}]'
+                - sortorder: '1'
+                  drawtype: GRADIENT_LINE
+                  color: 0000FF
+                  item:
+                    host: 'Unifi UDM Pro Max'
+                    key: 'ifOutErrors[{#SNMPINDEX}]'
+                - sortorder: '2'
+                  drawtype: GRADIENT_LINE
+                  color: FF8800
+                  item:
+                    host: 'Unifi UDM Pro Max'
+                    key: 'ifInDiscards[{#SNMPINDEX}]'
+                - sortorder: '3'
+                  drawtype: GRADIENT_LINE
+                  color: 00FFFF
+                  item:
+                    host: 'Unifi UDM Pro Max'
+                    key: 'ifOutDiscards[{#SNMPINDEX}]'
+            - uuid: 6c4eab97e154433cb8953ff14266a45c
+              name: 'Interface Traffic on {#IFDESCR}'
+              graph_items:
+                - drawtype: GRADIENT_LINE
+                  color: 199C0D
+                  item:
+                    host: 'Unifi UDM Pro Max'
+                    key: 'ifInOctets[{#SNMPINDEX}]'
+                - sortorder: '1'
+                  drawtype: GRADIENT_LINE
+                  color: 0040FF
+                  item:
+                    host: 'Unifi UDM Pro Max'
+                    key: 'ifOutOctets[{#SNMPINDEX}]'
+          master_item:
+            key: snmp.if.discovery
+          preprocessing:
+            - type: SNMP_WALK_TO_JSON
+              parameters:
+                - '{#SNMPINDEX}'
+                - 1.3.6.1.2.1.2.2.1.2
+                - '0'
+                - '{#IFDESCR}'
+                - 1.3.6.1.2.1.2.2.1.2
+                - '0'
+                - '{#IFTYPE}'
+                - 1.3.6.1.2.1.2.2.1.3
+                - '0'
+                - '{#IFOPERSTATUS}'
+                - 1.3.6.1.2.1.2.2.1.8
+                - '0'
+      tags:
+        - tag: class
+          value: network
+        - tag: target
+          value: router
+        - tag: target
+          value: ubiquiti
+      macros:
+        - macro: '{$SNMP_COMMUNITY}'
+          value: giuffrelab
+        - macro: '{$SNMP_PORT}'
+          value: '161'
+  graphs:
+    - uuid: 39bc680db9b148428bfdfbfc54fad68c
+      name: 'CPU Load Averages'
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: 1A7C11
+          item:
+            host: 'Unifi UDM Pro Max'
+            key: IaLoad.1
+        - sortorder: '1'
+          drawtype: GRADIENT_LINE
+          color: '000099'
+          item:
+            host: 'Unifi UDM Pro Max'
+            key: IaLoad.2
+        - sortorder: '2'
+          drawtype: GRADIENT_LINE
+          color: '990000'
+          item:
+            host: 'Unifi UDM Pro Max'
+            key: IaLoad.3
