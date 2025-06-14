@@ -144,7 +144,7 @@ zabbix_export:
           filter:
             conditions:
               - macro: '{#IFDESCR}'
-                value: '^(eth|ath|br|honeypot|switch|Annapurna).*'
+                value: '^(eth|ath|br|honeypot|switch|Annapurna|Realtek).*'
               - macro: '{#IFOPERSTATUS}'
                 value: ^1$
               - macro: '{#IFTYPE}'
@@ -308,7 +308,7 @@ zabbix_export:
           value: ubiquiti
       macros:
         - macro: '{$SNMP_COMMUNITY}'
-          value: giuffrelab
+          value: public
         - macro: '{$SNMP_PORT}'
           value: '161'
       dashboards:
@@ -370,10 +370,28 @@ zabbix_export:
                     - type: INTEGER
                       name: show.2
                       value: '4'
+                - type: graphprototype
+                  name: 'Interface Traffic'
+                  x: '14'
+                  'y': '7'
+                  width: '25'
+                  height: '6'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: GRAPH_PROTOTYPE
+                      name: graphid.0
+                      value:
+                        host: 'Unifi UDM Pro Max'
+                        name: 'Interface Traffic on {#IFDESCR}'
+                    - type: STRING
+                      name: reference
+                      value: EASNH
                 - type: svggraph
                   name: 'CPU Load Averages (1 min)'
                   x: '14'
-                  'y': '7'
+                  'y': '13'
                   width: '47'
                   height: '5'
                   fields:
@@ -398,7 +416,7 @@ zabbix_export:
                 - type: svggraph
                   name: 'CPU Load Averages (5 min)'
                   x: '14'
-                  'y': '12'
+                  'y': '18'
                   width: '47'
                   height: '5'
                   fields:
@@ -423,7 +441,7 @@ zabbix_export:
                 - type: svggraph
                   name: 'CPU Load Averages (15 min)'
                   x: '14'
-                  'y': '17'
+                  'y': '23'
                   width: '47'
                   height: '5'
                   fields:
@@ -466,6 +484,24 @@ zabbix_export:
                     - type: INTEGER
                       name: show.2
                       value: '4'
+                - type: graphprototype
+                  name: 'Interface Errors'
+                  x: '39'
+                  'y': '7'
+                  width: '22'
+                  height: '6'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: GRAPH_PROTOTYPE
+                      name: graphid.0
+                      value:
+                        host: 'Unifi UDM Pro Max'
+                        name: 'Interface Errors on {#IFDESCR}'
+                    - type: STRING
+                      name: reference
+                      value: ISVBZ
   graphs:
     - uuid: 39bc680db9b148428bfdfbfc54fad68c
       name: 'CPU Load Averages'
