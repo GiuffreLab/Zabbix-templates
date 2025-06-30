@@ -7,6 +7,9 @@ zabbix_export:
     - uuid: db27c5a0e5a74eb4a16ff1966fa73024
       template: 'Unifi Switches'
       name: 'Unifi Switches'
+      vendor:
+        name: Unifi
+        version: 7.2-2
       templates:
         - name: 'ICMP Ping'
       groups:
@@ -20,7 +23,7 @@ zabbix_export:
           value_type: FLOAT
           trends: '0'
           tags:
-            - tag: Application
+            - tag: component
               value: CPU
         - uuid: 565a6aa1e5ce42f5af5f03ea554a9283
           name: 'CPU Load 5m'
@@ -30,7 +33,7 @@ zabbix_export:
           value_type: FLOAT
           trends: '0'
           tags:
-            - tag: Application
+            - tag: component
               value: CPU
         - uuid: dc013a5e77884373a0e776107774aacf
           name: 'CPU Load 15m'
@@ -40,7 +43,7 @@ zabbix_export:
           value_type: FLOAT
           trends: '0'
           tags:
-            - tag: Application
+            - tag: component
               value: CPU
         - uuid: d4903fac2f3848ec90d60f16141b7f9b
           name: 'Available RAM'
@@ -49,8 +52,8 @@ zabbix_export:
           key: memAvailReal.0
           units: kB
           tags:
-            - tag: Application
-              value: Memory
+            - tag: component
+              value: memory
         - uuid: f09d805d4f394aaab2ec24933fd69bdb
           name: 'Total RAM'
           type: SNMP_AGENT
@@ -58,14 +61,19 @@ zabbix_export:
           key: memTotalReal.0
           units: kB
           tags:
-            - tag: Application
-              value: Memory
+            - tag: component
+              value: memory
         - uuid: 2bb617ea139b4d42b644e39158a6abb4
           name: 'SNMP Interface Discovery Source'
           type: SNMP_AGENT
           snmp_oid: 'walk[1.3.6.1.2.1.2.2.1.2,1.3.6.1.2.1.2.2.1.3,1.3.6.1.2.1.2.2.1.8,1.3.6.1.2.1.31.1.1.1.18]'
           key: snmp.if.discovery
           value_type: TEXT
+          tags:
+            - tag: component
+              value: interfaces
+            - tag: component
+              value: system
         - uuid: cb64c56470b44f6c9758aaa3dca1ba59
           name: Contact
           type: SNMP_AGENT
@@ -73,9 +81,6 @@ zabbix_export:
           key: sysContact.0
           value_type: TEXT
           inventory_link: CONTACT
-          tags:
-            - tag: Application
-              value: System
         - uuid: 95ac776593cb458eb91b21325b0618c1
           name: 'System Description (raw firmware string)'
           type: SNMP_AGENT
@@ -84,8 +89,8 @@ zabbix_export:
           value_type: TEXT
           inventory_link: SOFTWARE
           tags:
-            - tag: Application
-              value: System
+            - tag: component
+              value: system
         - uuid: 9baee408ba0c4be5be5f14ec21a8b2f4
           name: Location
           type: SNMP_AGENT
@@ -93,9 +98,6 @@ zabbix_export:
           key: sysLocation.0
           value_type: TEXT
           inventory_link: LOCATION
-          tags:
-            - tag: Application
-              value: System
         - uuid: c0da4be9947141f2ba301855799f2b97
           name: Hostname
           type: SNMP_AGENT
@@ -104,8 +106,8 @@ zabbix_export:
           value_type: TEXT
           inventory_link: NAME
           tags:
-            - tag: Application
-              value: System
+            - tag: component
+              value: system
         - uuid: 7149f1510bcc45beab209e57ea9b2f51
           name: 'Uptime (clean format)'
           type: SNMP_AGENT
@@ -117,8 +119,10 @@ zabbix_export:
               parameters:
                 - 'return Math.floor(value/8640000)+'' days, ''+Math.floor(value%8640000/360000)+'' hours, ''+Math.floor(value%360000/6000)+'' minutes, ''+Math.floor(value%6000/100)+'' seconds'';'
           tags:
-            - tag: Application
-              value: System
+            - tag: component
+              value: health
+            - tag: component
+              value: system
       discovery_rules:
         - uuid: 92df229d8f6644079d5bee1fa5452143
           name: 'Discover SNMP Interfaces'
@@ -138,8 +142,12 @@ zabbix_export:
               key: 'ifInDiscards[{#SNMPINDEX}]'
               units: packets
               tags:
-                - tag: Application
-                  value: Interfaces
+                - tag: component
+                  value: health
+                - tag: component
+                  value: interfaces
+                - tag: component
+                  value: network
             - uuid: 15b286e6d96a439b865c05675c7f3ce6
               name: 'Inbound Errors on {#IFDESCR} ({#IFALIAS})'
               type: SNMP_AGENT
@@ -147,8 +155,12 @@ zabbix_export:
               key: 'ifInErrors[{#SNMPINDEX}]'
               units: errors
               tags:
-                - tag: Application
-                  value: Interfaces
+                - tag: component
+                  value: health
+                - tag: component
+                  value: interfaces
+                - tag: component
+                  value: network
             - uuid: 192ccbb2565b4718b36b20345a4f0532
               name: 'Inbound traffic on {#IFDESCR} ({#IFALIAS})'
               type: SNMP_AGENT
@@ -161,8 +173,12 @@ zabbix_export:
                   parameters:
                     - '8'
               tags:
-                - tag: Application
-                  value: Interfaces
+                - tag: component
+                  value: health
+                - tag: component
+                  value: interfaces
+                - tag: component
+                  value: network
             - uuid: b50e3171bf1e4be1a4fede7ca205c575
               name: 'Outbound Discards on {#IFDESCR} ({#IFALIAS})'
               type: SNMP_AGENT
@@ -170,8 +186,12 @@ zabbix_export:
               key: 'ifOutDiscards[{#SNMPINDEX}]'
               units: packets
               tags:
-                - tag: Application
-                  value: Interfaces
+                - tag: component
+                  value: health
+                - tag: component
+                  value: interfaces
+                - tag: component
+                  value: network
             - uuid: f8b12322f27543d0bec611ed9ca3557c
               name: 'Outbound Errors on {#IFDESCR} ({#IFALIAS})'
               type: SNMP_AGENT
@@ -179,8 +199,12 @@ zabbix_export:
               key: 'ifOutErrors[{#SNMPINDEX}]'
               units: errors
               tags:
-                - tag: Application
-                  value: Interfaces
+                - tag: component
+                  value: health
+                - tag: component
+                  value: interfaces
+                - tag: component
+                  value: network
             - uuid: 8810f543bf6541cb861271c0ae29119f
               name: 'Outbound traffic on {#IFDESCR} ({#IFALIAS})'
               type: SNMP_AGENT
@@ -193,8 +217,12 @@ zabbix_export:
                   parameters:
                     - '8'
               tags:
-                - tag: Application
-                  value: Interfaces
+                - tag: component
+                  value: health
+                - tag: component
+                  value: interfaces
+                - tag: component
+                  value: network
           graph_prototypes:
             - uuid: a9aa9a3de3bd4b89ba006f1afe537e1e
               name: 'Interface Errors on {#IFDESCR} ({#IFALIAS})'
@@ -256,6 +284,6 @@ zabbix_export:
           value: ubiquiti
       macros:
         - macro: '{$SNMP_COMMUNITY}'
-          value: public
+          value: giuffrelab
         - macro: '{$SNMP_PORT}'
           value: '161'
