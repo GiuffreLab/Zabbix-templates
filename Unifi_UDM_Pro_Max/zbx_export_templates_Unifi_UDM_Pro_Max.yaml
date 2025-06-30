@@ -84,7 +84,7 @@ zabbix_export:
           value_type: TEXT
           tags:
             - tag: component
-              value: interface
+              value: interfaces
             - tag: component
               value: system
         - uuid: 063b49dc9b9e427d8f57fb366ad801ef
